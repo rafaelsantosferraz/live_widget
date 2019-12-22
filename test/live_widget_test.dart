@@ -8,7 +8,7 @@ void main() {
     //arrange
     final _counter = LiveData(initValue: 0);
     bool _wasNotified = false;
-    _counter.observe(() => _wasNotified = true);
+    _counter.observe((value) => _wasNotified = true);
 
     //act
     _counter.value++;

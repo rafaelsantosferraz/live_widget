@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class LiveData <T> {
 
   /// The set of callback functions to invoke on [value] change.
-  Set<VoidCallback> observers = Set();
+  Set<void Function(T)> observers = Set();
 
 
   T _value;
@@ -20,10 +20,10 @@ class LiveData <T> {
   /// Sets [newValue] to [_value] and if [newValue] is different from [_value]
   /// invokes each [Observer] in [observers].
   set value(T newValue) {
-    if(observers != null && _value != newValue) {
-      observers.forEach((observer) => observer());
-    }
+    if(observers == null && _value == newValue) return;
+
     _value = newValue;
+    observers.forEach((observer) => observer(newValue));
   }
 
   /// Creates a [LiveData] with a [initialValue].
@@ -32,10 +32,10 @@ class LiveData <T> {
   }
 
   /// Adds [observer] to [observers].
-  void observe(VoidCallback observer) => observers.add(observer);
+  void observe(void Function(T) observer) => observers.add(observer);
 
   /// Removes [observer] from [observers].
-  void remove(VoidCallback observer) => observers.remove(value);
+  void remove(void Function(T) observer) => observers.remove(value);
 
   /// Removes all observers from [observers].
   void dispose() => observers = null;
@@ -80,6 +80,6 @@ class _LiveWidgetState<T> extends State<LiveWidget<T>> {
   Widget build(BuildContext context) =>
       widget.builder(context, widget.liveData.value, widget.child);
 
-  void _onValueChange() =>
+  void _onValueChange(T value) =>
       setState(() {});
 }
