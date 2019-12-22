@@ -7,41 +7,38 @@ import 'package:flutter/material.dart';
 
 
 /// An object wrapper that, when its object value changes, notify a set of observers.
-///
-/// [T] defines the type of the wrapped object.
 class LiveData <T> {
 
   /// The set of callback functions to invoke on [value] change.
-  Set<void Function(T)> observers = Set();
+  Set<VoidCallback> observers = Set();
 
-  /// The value this wraps.
-  T _data;
 
-  /// Access [_data] value.
-  T get value => _data;
+  T _value;
 
-  /// Sets [newValue] to [_data] and if [newValue] is different from [_data]
+  T get value => _value;
+
+  /// Sets [newValue] to [_value] and if [newValue] is different from [_value]
   /// invokes each [Observer] in [observers].
-  set value(newValue) {
-    if(observers != null && _data != newValue) {
-      observers.forEach((observer) => observer(newValue));
+  set value(T newValue) {
+    if(observers != null && _value != newValue) {
+      observers.forEach((observer) => observer());
     }
-    _data = newValue;
+    _value = newValue;
   }
 
   /// Creates a [LiveData] with a [initialValue].
   LiveData({@required T initValue}){
-    _data = initValue;
+    _value = initValue;
   }
 
   /// Adds [observer] to [observers].
-  void observe(void Function(T) observer) => observers.add(observer);
+  void observe(VoidCallback observer) => observers.add(observer);
 
   /// Removes [observer] from [observers].
-  void remove(void Function(T) observer) => observers.remove(value);
+  void remove(VoidCallback observer) => observers.remove(value);
 
   /// Removes all observers from [observers].
-  void dispose() => observers.clear();
+  void dispose() => observers = null;
 }
 
 
@@ -50,18 +47,22 @@ class LiveData <T> {
 
 class LiveWidget<T> extends StatefulWidget {
 
-  final LiveData<T> liveData;
-  final Widget Function(T) onValueChange;
+  const LiveWidget({
+    @required this.liveData,
+    @required this.builder,
+    this.child
+  }): assert(liveData != null),
+      assert(builder  != null);
 
-  LiveWidget({this.liveData, this.onValueChange});
+  final LiveData<T> liveData;
+  final Widget Function(BuildContext, T, Widget) builder;
+  final Widget child;
 
   @override
-  _LiveWidgetState<T> createState() => _LiveWidgetState<T>();
+  State<StatefulWidget> createState() => _LiveWidgetState<T>();
 }
 
 class _LiveWidgetState<T> extends State<LiveWidget<T>> {
-
-
 
   @override
   void initState() {
@@ -77,8 +78,8 @@ class _LiveWidgetState<T> extends State<LiveWidget<T>> {
 
   @override
   Widget build(BuildContext context) =>
-      widget.onValueChange != null ? widget.onValueChange(widget.liveData.value) : null;
+      widget.builder(context, widget.liveData.value, widget.child);
 
-  void _onValueChange(T value) =>
+  void _onValueChange() =>
       setState(() {});
 }

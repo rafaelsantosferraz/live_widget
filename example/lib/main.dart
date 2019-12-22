@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:live_widget/live_widget.dart';
 
@@ -45,18 +46,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  LiveData<int> _counter = LiveData(initValue: 0);
+  final LiveData<int> _counter = LiveData<int>(initValue: 0);
+  final ValueNotifier _c = ValueNotifier(0);
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter.value++;
-    });
-  }
+  void _incrementCounter() =>_counter.value++;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             LiveWidget<int>(
               liveData: _counter,
-              onValueChange: (int value) => Text(
+              builder: (context, value, widget) => Text(
                 '$value',
                 style: Theme.of(context).textTheme.display1,
               ),
